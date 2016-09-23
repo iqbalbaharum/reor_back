@@ -1,40 +1,32 @@
 <?php
  
 include_once 'database.php';
- 
+
+$database = new Database();
+$database->connect();
+
 //Create
 if (isset($_POST['create'])) {
  
-  $username = $_POST['username'];
-  $type = $_POST['type'];
-  $devid = $_POST['devid'];
-  $stream = $_POST['stream'];
+  $obj = null;
+  $obj['username'] = $_POST['username'];
+  $obj['type'] = $_POST['type'];
+  $obj['devid'] = $_POST['devid'];
+  $obj['stream'] = $_POST['stream'];
 
- 
-  $sql = "insert into register(";
-    $sql = $sql."username, ";
-    $sql = $sql."type, ";
-    $sql = $sql."devid, ";
-    $sql = $sql."stream) values(";
-    $sql = $sql."'".$username."', ";
-    $sql = $sql."'".$type."', ";
-    $sql = $sql."'".$devid."', ";
-    $sql = $sql."'".$stream."')";
- 
-  $result = $mydb->query($sql);
- 
-  if (!$result) {
- 
-    die("SQL Error Message: ".$mydb->error);
+  if(!$database->insert(Database::R_DEVICE, $obj)) {
+    die("SQL Error Message: ".$database->getError());
   }
 }
  
 if (isset($_GET['delete'])) {
  
-  $username = $_GET['delete'];
-  $sql = "delete from register where username = '".$username."'";
-  $result = $mydb->query($sql);
- 
+  $obj["username"] = $_GET['delete'];
+
+  if(!$database->remove(Database::R_DEVICE, $obj)) {
+    // ignore error
+  }
+
   header("Location: reg.php");
 }
  

@@ -1,4 +1,5 @@
 <?php
+  include_once 'database.php';  
   include_once 'reg_crud.php';
 ?>
  
@@ -57,6 +58,8 @@
           <input name="stream" type="text" class="form-control" id="stream" placeholder="Stream" value="<?php if(isset($_GET['edit'])) echo $editrow['stream']; ?>" >
         </div>
         </div>
+
+
 
         <div class="form-group">
           <div class="col-sm-offset-3 col-sm-9">
@@ -119,9 +122,13 @@
           <th>Category / Type</th>
           <th>Device ID</th>
           <th>Stream</th>
+          <th>Key</th>
         </tr>
 
       <?php
+      $database = new Database();
+      $database->connect();
+
       // Read    
       $per_page = 5;
       if (isset($_GET["page"]))
@@ -129,8 +136,9 @@
       else
         $page = 1;
       $start_from = ($page-1) * $per_page;
-      $sql = "select * from register LIMIT $start_from, $per_page";
-      $result = $mydb->query($sql);
+      // $sql = "select * from register LIMIT $start_from, $per_page";
+      // $result = $mydb->query($sql);
+      $database->selectRawQuery(Database::R_DEVICE, "*", $result, "LIMIT $start_from, $per_page");
       while ($readrow = $result->fetch_array()) {
       ?>   
       <tr>
@@ -138,6 +146,7 @@
         <td><?php echo $readrow['type']; ?></td>
         <td><?php echo $readrow['devid']; ?></td>
         <td><?php echo $readrow['stream']; ?></td>
+  
 
         <td>
           <a href="reg.php?delete=<?php echo $readrow['username']; ?>" onclick="return confirm('Are you sure to delete it?');" class="btn btn-danger btn-xs" role="button">Delete</a>
@@ -156,8 +165,8 @@
       <nav>
           <ul class="pagination">
           <?php
-        $sql = "select * from register";
-        $result = $mydb->query($sql);
+
+          $database->select(Database::R_DEVICE, null, $result);
  
         $total_records = mysqli_num_rows($result);
         $total_pages = ceil($total_records / $per_page);
