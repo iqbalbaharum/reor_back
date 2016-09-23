@@ -75,6 +75,45 @@
 
 		}
 		// return back information to requestor
+		header('Access-Control-Allow-Origin: *');
+		header('Content-Type: application/json');
+		echo json_encode($json);
+	}
+
+	/***
+	 * DEVICE
+	 */
+	if (isset($_GET['device'])) {
+
+		$json = null;
+
+		// search device
+		$aObj["username"] = urlencode($_GET["device"]);
+
+		$database = new Database();
+		$database->connect();
+
+		if($database->select(Database::R_DEVICE, $aObj, $aResult)) {
+
+			if($aResult == null)
+				$json["error"] = "Device not exists";
+		} else {
+			$json["error"] = $database->getError();
+		}
+
+		if($json == null) {
+			$result = $aResult->fetch_assoc();
+			$stream = getStreamLatestData($result["devid"]);
+			
+			if($stream["value"] > -1) {
+				$json["status"] = "Active";
+				$json["value"] = $stream["value"];
+			}
+		}
+
+		// return back information to requestor
+		header('Access-Control-Allow-Origin: *');
+		header('Content-Type: application/json');
 		echo json_encode($json);
 	}
 
@@ -189,7 +228,7 @@
 			$json = json_decode($response, true); 
 
 			$return["type"] = $json["name"];
-			$return["latest_value"] = $json["value"];
+			$return["value"] = $json["value"];
 		}
 
 		curl_close($curl);
